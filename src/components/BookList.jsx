@@ -5,8 +5,6 @@ import { useState } from "react";
 import CommentArea from "./CommentArea";
 
 const BookList = () => {
-
-
   const [query, setQuery] = useState("");
   const [selectedBook, setSelectedBook] = useState(null);
 
