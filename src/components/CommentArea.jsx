@@ -1,37 +1,30 @@
-import { Component } from "react";
+import { useEffect, useState } from "react";
 import AddComment from "./AddComment";
 import CommentsList from "./CommentsList";
 import Error from "./Error";
 import Loading from "./Loading";
 
-class CommentArea extends Component {
-  state = {
-    comments: [],
-    loading: false,
-    error: false,
-  };
+const CommentArea = (props) => {
 
-  componentDidMount = () => {
-    this.setState({
-      loading: true,
-    });
-    this.fetchComments();
-  }
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  componentDidUpdate = (prevProps) => {
-    if (prevProps.elementId !== this.props.elementId) {
-      this.setState({
-        loading: true,
-      });
-      this.fetchComments();
-    }
-  };
+  useEffect(() => {
+    setLoading(true);
+    fetchComments();
+  }, []);
 
-  fetchComments = async () => {
+  useEffect(() => {
+    setLoading(true);
+    fetchComments();
+  }, [props.elementId]);
+
+  const fetchComments = async () => {
     try {
       let res = await fetch(
         "https://striveschool-api.herokuapp.com/api/comments/" +
-          this.props.elementId,
+          props.elementId,
         {
           headers: {
             Authorization:
@@ -42,42 +35,34 @@ class CommentArea extends Component {
       if (res.ok) {
         let data = await res.json();
         setTimeout(() => {
-          this.setState({
-            comments: data,
-            loading: false,
-            error: false,
-          });
+          setComments(data);
+          setLoading(false);
+          setError(false);
         }, 1500);
       } else {
         setTimeout(() => {
-          this.setState({
-            loading: false,
-            error: true 
-          });
+          setLoading(false);
+          setError(true);
         }, 1500);
         console.log("Qualcosa è andato storto");
       }
     } catch (error) {
       setTimeout(() => {
-        this.setState({
-          loading: false,
-          error: true
-        });
+        setLoading(false);
+        setError(true);
       }, 1500);
       console.log(error);
     }
   };
 
-  render() {
-    return (
-      <div>
-        {this.state.loading && <Loading />}
-        {this.state.error && <Error />}
-        <AddComment bookAsin={this.props.elementId} />
-        <CommentsList comments={this.state.comments} />
-      </div>
-    );
-  }
+  return (
+    <div>
+      {loading && <Loading />}
+      {error && <Error />}
+      <AddComment bookAsin={props.elementId} />
+      <CommentsList comments={comments} />
+    </div>
+  );
 }
 
 export default CommentArea;
